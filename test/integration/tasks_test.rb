@@ -20,12 +20,12 @@ describe "db" do
     Release.delete_all
     Project.any_instance.expects(:clone_repository)
     assert_difference 'Project.count', +2 do
-      tasks["db:seed"].execute
+      load "db/seeds.rb" # ideally call tasks["db:seed"].execute, but that is in a different transaction
     end
   end
 
   it "can dump the schema without diff" do
-    tasks["db:schema:dump"]
+    tasks["db:schema:dump"].execute
     if ActiveRecord::Base.connection.adapter_name.match?(/mysql/i)
       File.read("db/schema.rb").wont_include "4294967295", "replace 4294967295 with 1073741823"
       `git diff -- db/schema.rb`.must_equal ""
